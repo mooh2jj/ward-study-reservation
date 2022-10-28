@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@ToString(of = {"id", "startTime", "endTime", "isEmailSent"})
+@ToString(of = {"id", "start_time", "end_time", "is_email_sent"})
 @Table(name = "reservation")
 public class Reservation extends BaseTimeEntity {
 
