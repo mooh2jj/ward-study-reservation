@@ -11,13 +11,19 @@ services:
     ports:
       - "9092:9092"
     environment:
-      KAFKA_ADVERTISED_HOST_NAME: 15.164.99.241
+      KAFKA_ADVERTISED_HOST_NAME: 15.164.99.241  # # 127.0.0.1 15.164.99.241
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-  redis:
+  redis-cache:
+    image: redis:latest
+    container_name: redis-cache
+#    command: redis-server --port 6380
+    ports:
+      - "6379:6379"
+  redis-session:
     image: redis:latest
     container_name: redis-session
-#    command: redis-server --port 6380
+    #    command: redis-server --port 6380
     ports:
       - "6380:6379"
