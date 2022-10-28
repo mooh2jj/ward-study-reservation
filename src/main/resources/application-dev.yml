@@ -26,10 +26,10 @@ spring:
 
   redis:
     cache:
-      host: localhost
+      host: 15.164.99.241  # localhost
       port: 6379
     session:
-      host: localhost
+      host: 15.164.99.241  # localhost
       port: 6380
 
   kafka:
