@@ -8,7 +8,9 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Entity
@@ -27,6 +29,14 @@ public class StudyGroup extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String content;
+
+    @JoinTable(
+            name = "study_group_hashtag",
+            joinColumns = @JoinColumn(name = "study_group_id"),
+            inverseJoinColumns = @JoinColumn(name = "hashtag_id")
+    )
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private Set<Hashtag> hashtags = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "studyGroup", cascade = CascadeType.ALL)
     @JsonIgnore

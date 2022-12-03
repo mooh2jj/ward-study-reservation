@@ -20,4 +20,8 @@ public interface StudyGroupService {
     void deleteById(Long userId, Long studyGroupId);
 
     List<StudyGroupResponse> getAllByUserId(Long userId);
+
+    PageResponse.StudyGroupDetail getStudyGroupsViaHashtag(Pageable pageable, String hashtagName);
+
+    List<String> getHashtags();
 }

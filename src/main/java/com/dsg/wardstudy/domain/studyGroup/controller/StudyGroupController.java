@@ -56,6 +56,18 @@ public class StudyGroupController {
         return ResponseEntity.ok(studyGroupService.getAll(pageable, type, keyword));
     }
 
+    @GetMapping("/study-group/search-hashtag")
+    public ResponseEntity<PageResponse.StudyGroupDetail> searchArticleHashtag(
+            @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(value = "hashtagName", required = false) String hashtagName
+    ) {
+
+        PageResponse.StudyGroupDetail studyGroupsViaHashtag = studyGroupService.getStudyGroupsViaHashtag(pageable, hashtagName);
+        List<String> hashtags = studyGroupService.getHashtags();
+
+        return ResponseEntity.ok(studyGroupsViaHashtag);
+    }
+
     // 사용자가 참여한 스터디그룹 조회
     @GetMapping("/study-group")
     public ResponseEntity<List<StudyGroupResponse>> getAllByUserId(

@@ -12,6 +12,7 @@ import com.dsg.wardstudy.domain.studyGroup.dto.StudyGroupResponse;
 import com.dsg.wardstudy.common.exception.WSApiException;
 import com.dsg.wardstudy.repository.reservation.ReservationQueryRepository;
 import com.dsg.wardstudy.repository.reservation.ReservationRepository;
+import com.dsg.wardstudy.repository.studyGroup.HashtagRepository;
 import com.dsg.wardstudy.repository.studyGroup.StudyGroupRepository;
 import com.dsg.wardstudy.repository.user.UserGroupRepository;
 import com.dsg.wardstudy.repository.user.UserRepository;
@@ -19,11 +20,13 @@ import com.dsg.wardstudy.type.UserType;
 import com.querydsl.core.BooleanBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -36,8 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.verify;
 
 @Slf4j
@@ -52,6 +54,9 @@ class StudyGroupServiceTest {
     private StudyGroupRepository studyGroupRepository;
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private HashtagRepository hashtagRepository;
 
     @Mock
     private UserGroupRepository userGroupRepository;
@@ -283,6 +288,22 @@ class StudyGroupServiceTest {
         // then - verify the output
         verify(reservationRepository).delete(reservation);
         verify(studyGroupRepository).delete(studyGroup);
+
+    }
+
+    @DisplayName("해시태그를 조회하면 유니크 해시태그 리스트를 반환")
+    @Test
+    public void givenHashtag_returnList() {
+        // given
+        List<String> expectedHashtags = List.of("#java", "#spring", "#boot");
+        given(studyGroupRepository.findAllDistinctHashtags()).willReturn(expectedHashtags);
+
+        // when
+        List<String> actualHashtags = studyGroupService.getHashtags();
+
+        // then
+        assertThat(actualHashtags).isEqualTo(expectedHashtags);
+        then(studyGroupRepository).should().findAllDistinctHashtags();
 
     }
 

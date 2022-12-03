@@ -13,6 +13,7 @@ import com.dsg.wardstudy.domain.user.UserGroup;
 import com.dsg.wardstudy.repository.attach.AttachRepository;
 import com.dsg.wardstudy.repository.reservation.ReservationQueryRepository;
 import com.dsg.wardstudy.repository.reservation.ReservationRepository;
+import com.dsg.wardstudy.repository.studyGroup.HashtagRepository;
 import com.dsg.wardstudy.repository.studyGroup.StudyGroupRepository;
 import com.dsg.wardstudy.repository.user.UserGroupRepository;
 import com.dsg.wardstudy.repository.user.UserRepository;
@@ -47,6 +48,8 @@ public class StudyGroupServiceImpl implements StudyGroupService {
     private final ReservationQueryRepository reservationQueryRepository;
 
     private final AttachRepository attachRepository;
+
+    private final HashtagRepository hashtagRepository;
 
     @Transactional
     @Override
@@ -127,6 +130,25 @@ public class StudyGroupServiceImpl implements StudyGroupService {
         booleanBuilder.and(conditionBuilder);
         return booleanBuilder;
     }
+
+    @Override
+    public List<String> getHashtags() {
+        return hashtagRepository.findAllHashtagNames();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public PageResponse.StudyGroupDetail getStudyGroupsViaHashtag(Pageable pageable, String hashtagName) {
+        if (hashtagName == null || hashtagName.isBlank()) {
+            return null;
+        }
+
+        Page<StudyGroupResponse> studyGroupResponsePage = studyGroupRepository.findByHashtagNames(List.of(hashtagName), pageable)
+                .map(StudyGroupResponse::mapToDto);
+
+        return PageResponse.of(pageable, studyGroupResponsePage);
+    }
+
 
     @CacheEvict(key = "#userId", value = STUDY_GROUP_LIST, cacheManager = "redisCacheManager")
     @Transactional
