@@ -2,11 +2,15 @@ package com.dsg.wardstudy.domain.comment.service;
 
 import com.dsg.wardstudy.common.exception.ErrorCode;
 import com.dsg.wardstudy.common.exception.WSApiException;
+import com.dsg.wardstudy.domain.alarm.constant.AlarmType;
+import com.dsg.wardstudy.domain.alarm.dto.AlarmArgs;
+import com.dsg.wardstudy.domain.alarm.entity.Alarm;
 import com.dsg.wardstudy.domain.comment.entity.Comment;
 import com.dsg.wardstudy.domain.comment.dto.CommentDto;
 import com.dsg.wardstudy.domain.comment.repository.CommentRepository;
 import com.dsg.wardstudy.domain.studyGroup.entity.StudyGroup;
 import com.dsg.wardstudy.domain.user.entity.User;
+import com.dsg.wardstudy.repository.alarm.AlarmRepository;
 import com.dsg.wardstudy.repository.studyGroup.StudyGroupRepository;
 import com.dsg.wardstudy.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +29,8 @@ public class CommentServiceImpl implements CommentService{
 
     private final UserRepository userRepository;
 
+    private final AlarmRepository alarmRepository;
+
     @Transactional
     @Override
     public CommentDto createComment(Long studyGroupId, Long userId, CommentDto commentDto) {
@@ -39,6 +45,14 @@ public class CommentServiceImpl implements CommentService{
         ofComment.setStudyGroup(findStudyGroup);
         ofComment.setUser(findUser);
         Comment savedComment = commentRepository.save(ofComment);
+
+        // 알림 save
+        alarmRepository.save(
+                Alarm.of(findStudyGroup.getUser(),
+                        AlarmType.NEW_COMMENT_ON_STUDYGROUP,
+                        new AlarmArgs(findUser.getId(), findStudyGroup.getId())
+                )
+        );
 
         return CommentDto.mapToDto(savedComment);
     }

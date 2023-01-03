@@ -2,6 +2,9 @@ package com.dsg.wardstudy.domain.studyGroup.service;
 
 import com.dsg.wardstudy.common.exception.ErrorCode;
 import com.dsg.wardstudy.common.exception.WSApiException;
+import com.dsg.wardstudy.domain.alarm.constant.AlarmType;
+import com.dsg.wardstudy.domain.alarm.dto.AlarmArgs;
+import com.dsg.wardstudy.domain.alarm.entity.Alarm;
 import com.dsg.wardstudy.domain.attach.entity.Attach;
 import com.dsg.wardstudy.domain.studyGroup.entity.Like;
 import com.dsg.wardstudy.domain.studyGroup.entity.QStudyGroup;
@@ -11,6 +14,7 @@ import com.dsg.wardstudy.domain.studyGroup.dto.StudyGroupRequest;
 import com.dsg.wardstudy.domain.studyGroup.dto.StudyGroupResponse;
 import com.dsg.wardstudy.domain.user.entity.User;
 import com.dsg.wardstudy.domain.user.entity.UserGroup;
+import com.dsg.wardstudy.repository.alarm.AlarmRepository;
 import com.dsg.wardstudy.repository.attach.AttachRepository;
 import com.dsg.wardstudy.repository.like.LikeRepository;
 import com.dsg.wardstudy.repository.reservation.ReservationQueryRepository;
@@ -52,6 +56,8 @@ public class StudyGroupServiceImpl implements StudyGroupService {
 
     private final AttachRepository attachRepository;
 
+    private final AlarmRepository alarmRepository;
+
     @Transactional
     @Override
     public StudyGroupResponse register(Long userId, StudyGroupRequest studyGroupRequest) {
@@ -63,7 +69,7 @@ public class StudyGroupServiceImpl implements StudyGroupService {
                             " userId: " + userId);
                 });
 
-        StudyGroup studyGroup = StudyGroupRequest.mapToEntity(studyGroupRequest);
+        StudyGroup studyGroup = StudyGroup.of(findUser, studyGroupRequest);
         StudyGroup savedStudyGroup = studyGroupRepository.save(studyGroup);
 
         // studyGroup 등록시 UserType L(리더)로 등록
@@ -72,7 +78,7 @@ public class StudyGroupServiceImpl implements StudyGroupService {
                 .user(findUser)
                 .userType(UserType.LEADER)
                 .build();
-        UserGroup savedUserGroup = userGroupRepository.save(userGroup);
+        userGroupRepository.save(userGroup);
 
         // 파일 첨부 있을시
         if (studyGroupRequest.getAttachDTOS() != null && studyGroupRequest.getAttachDTOS().size() != 0) {
@@ -81,7 +87,7 @@ public class StudyGroupServiceImpl implements StudyGroupService {
             });
         }
 
-        return StudyGroupResponse.mapToDto(savedUserGroup);
+        return StudyGroupResponse.mapToDto(savedStudyGroup);
     }
 
     @Transactional(readOnly = true)
@@ -142,8 +148,8 @@ public class StudyGroupServiceImpl implements StudyGroupService {
         // 파일첨부시
         attachRepository.deleteAllByStudyGroupId(studyGroup.getId());
 
-        studyGroup.update(studyGroupRequest.getTitle(), studyGroupRequest.getContent());
-        log.info("studyGroup: {}", studyGroup);
+        studyGroup.update(studyGroupRequest);
+        log.info("updated studyGroup: {}", studyGroup);
 
         // 게시판 수정 후 attach insert 가능하게 처리
         if (studyGroupRequest.getAttachDTOS() != null && studyGroupRequest.getAttachDTOS().size() != 0) {
@@ -196,7 +202,7 @@ public class StudyGroupServiceImpl implements StudyGroupService {
 
     @Transactional
     @Override
-    public UserGroup participate(Long userId, Long studyGroupId) {
+    public StudyGroupResponse participate(Long userId, Long studyGroupId) {
         User participateUser = userRepository.findById(userId)
                 .orElseThrow(() -> new WSApiException(ErrorCode.NOT_FOUND_USER));
         log.info("participate findById user : {}", participateUser);
@@ -219,7 +225,7 @@ public class StudyGroupServiceImpl implements StudyGroupService {
                 .userType(UserType.PARTICIPANT)
                 .build();
 
-        return userGroupRepository.save(userGroup);
+        return StudyGroupResponse.mapToDto(participateStudyGroup);
 
     }
 
@@ -242,6 +248,15 @@ public class StudyGroupServiceImpl implements StudyGroupService {
                     String.format("userId %d already like studygroup %d", userId, studyGroupId));
         });
         likeRepository.save(Like.of(findUser, findStudyGroup));
+
+        // 알림 save
+        alarmRepository.save(
+                Alarm.of(
+                        findStudyGroup.getUser(),
+                        AlarmType.NEW_LIKE_ON_STUDYGROUP,
+                        new AlarmArgs(findStudyGroup.getId(), findStudyGroup.getId())
+                )
+        );
     }
 
     @Transactional(readOnly = true)

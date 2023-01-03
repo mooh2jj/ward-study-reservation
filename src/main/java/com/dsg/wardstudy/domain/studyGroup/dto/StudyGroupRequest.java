@@ -2,6 +2,7 @@ package com.dsg.wardstudy.domain.studyGroup.dto;
 
 import com.dsg.wardstudy.domain.attach.dto.AttachDTO;
 import com.dsg.wardstudy.domain.studyGroup.entity.StudyGroup;
+import com.dsg.wardstudy.domain.user.entity.User;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,22 +28,12 @@ public class StudyGroupRequest {
     private List<AttachDTO> attachDTOS;
 
     @Builder
-    public StudyGroupRequest(String title, String content) {
-        this.title = title;
-        this.content = content;
-    }
-
-    @Builder
     public StudyGroupRequest(String title, String content, MultipartFile file) {
         this.title = title;
         this.content = content;
         this.file = file;
     }
 
-    public static StudyGroup mapToEntity(StudyGroupRequest studyGroupRequest) {
-        return StudyGroup.builder()
-                .title(studyGroupRequest.getTitle())
-                .content(studyGroupRequest.getContent())
-                .build();
-    }
+
+
 }

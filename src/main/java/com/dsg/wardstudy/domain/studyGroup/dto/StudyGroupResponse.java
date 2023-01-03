@@ -26,17 +26,9 @@ public class StudyGroupResponse {
     public static StudyGroupResponse mapToDto(StudyGroup savedGroup) {
         return StudyGroupResponse.builder()
                 .studyGroupId(savedGroup.getId())
+                .registerId(savedGroup.getUser().getId())
                 .title(savedGroup.getTitle())
                 .content(savedGroup.getContent())
-                .build();
-    }
-
-    public static StudyGroupResponse mapToDto(UserGroup savedUserGroup) {
-        return StudyGroupResponse.builder()
-                .studyGroupId(savedUserGroup.getStudyGroup().getId())
-                .registerId(savedUserGroup.getUser().getId())
-                .title(savedUserGroup.getStudyGroup().getTitle())
-                .content(savedUserGroup.getStudyGroup().getContent())
                 .build();
     }
 

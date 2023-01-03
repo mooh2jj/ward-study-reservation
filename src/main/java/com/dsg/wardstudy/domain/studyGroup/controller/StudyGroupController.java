@@ -96,9 +96,8 @@ public class StudyGroupController {
     ) {
         log.info("studyGroup participate, " +
                 "studyGroupId: {}, userInfo: {}", studyGroupId, userId);
-        UserGroup participateUG = studyGroupService.participate(userId, studyGroupId);
 
-        return ResponseEntity.ok(participateUG);
+        return ResponseEntity.ok(studyGroupService.participate(userId, studyGroupId));
     }
 
     // 스터디그룹 좋아요 push

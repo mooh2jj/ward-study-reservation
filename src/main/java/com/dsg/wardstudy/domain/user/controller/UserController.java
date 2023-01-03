@@ -1,6 +1,9 @@
 package com.dsg.wardstudy.domain.user.controller;
 
+import com.dsg.wardstudy.common.Response;
 import com.dsg.wardstudy.common.auth.AuthUser;
+import com.dsg.wardstudy.domain.alarm.dto.AlarmDto;
+import com.dsg.wardstudy.domain.user.entity.User;
 import com.dsg.wardstudy.domain.user.entity.UserGroup;
 import com.dsg.wardstudy.domain.user.dto.LoginDto;
 import com.dsg.wardstudy.domain.user.dto.SignUpRequest;
@@ -10,6 +13,8 @@ import com.dsg.wardstudy.domain.user.service.LoginService;
 import com.dsg.wardstudy.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -74,6 +79,12 @@ public class UserController {
     public ResponseEntity<?> userWithdraw(@AuthUser Long userId) {
         userService.withdrawUser(userId);
         return ResponseEntity.ok("userWithdraw success");
+    }
+
+    @GetMapping("/alarm")
+    public Page<AlarmDto> alarm(@AuthUser Long userId, Pageable pageable) {
+
+        return userService.alarmList(userId, pageable);
     }
 
 }

@@ -3,16 +3,20 @@ package com.dsg.wardstudy.domain.user.service;
 import com.dsg.wardstudy.common.exception.ErrorCode;
 import com.dsg.wardstudy.common.exception.WSApiException;
 import com.dsg.wardstudy.common.utils.Encryptor;
+import com.dsg.wardstudy.domain.alarm.dto.AlarmDto;
 import com.dsg.wardstudy.domain.studyGroup.entity.StudyGroup;
 import com.dsg.wardstudy.domain.user.entity.User;
 import com.dsg.wardstudy.domain.user.entity.UserGroup;
 import com.dsg.wardstudy.domain.user.dto.*;
+import com.dsg.wardstudy.repository.alarm.AlarmRepository;
 import com.dsg.wardstudy.repository.studyGroup.StudyGroupRepository;
 import com.dsg.wardstudy.repository.user.UserGroupRepository;
 import com.dsg.wardstudy.repository.user.UserRepository;
 import com.dsg.wardstudy.domain.user.constant.UserType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final AlarmRepository alarmRepository;
 
 
     @Override
@@ -64,6 +69,18 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new WSApiException(ErrorCode.NOT_FOUND_USER));
         log.info("withdrawUser, findUser: {}", findUser);
         findUser.withdrawUser(true);
+    }
+
+    @Override
+    public Page<AlarmDto> alarmList(Long userId, Pageable pageable) {
+
+        User findUser = userRepository.findById(userId)
+                .orElseThrow(() -> new WSApiException(ErrorCode.NOT_FOUND_USER));
+
+        Page<AlarmDto> map = alarmRepository.findByUser(findUser, pageable)
+                .map(AlarmDto::toDto);
+        log.info("Page<AlarmDto> : {}", map);
+        return map;
     }
 
 }

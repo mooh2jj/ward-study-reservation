@@ -1,5 +1,6 @@
 package com.dsg.wardstudy.integration.studyGroup;
 
+import com.dsg.wardstudy.domain.studyGroup.dto.StudyGroupRequest;
 import com.dsg.wardstudy.domain.studyGroup.entity.StudyGroup;
 import com.dsg.wardstudy.domain.user.entity.UserGroup;
 import com.dsg.wardstudy.repository.studyGroup.StudyGroupRepository;
@@ -126,7 +127,13 @@ class StudyGroupRepositoryIntegrationTest {
 
         // when - action or the behaviour that we are going test
         StudyGroup savedStudyGroup = studyGroupRepository.findById(this.studyGroup.getId()).get();
-        savedStudyGroup.update("new_title", "new_content");
+
+        StudyGroupRequest studyGroupRequest = StudyGroupRequest.builder()
+                .title("new_title")
+                .content("new_content")
+                .build();
+
+        savedStudyGroup.update(studyGroupRequest);
 
         // then - verify the output
         assertThat(studyGroup.getTitle()).isEqualTo("new_title");

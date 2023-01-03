@@ -22,7 +22,7 @@ public interface StudyGroupService {
 
     List<StudyGroupResponse> getAllByUserId(Long userId);
 
-    UserGroup participate(Long userId, Long studyGroupId);
+    StudyGroupResponse participate(Long userId, Long studyGroupId);
 
     void like(Long userId, Long studyGroupId);
 

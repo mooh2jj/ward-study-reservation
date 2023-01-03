@@ -1,5 +1,6 @@
 package com.dsg.wardstudy.repository.studyGroup;
 
+import com.dsg.wardstudy.domain.studyGroup.dto.StudyGroupRequest;
 import com.dsg.wardstudy.domain.studyGroup.entity.StudyGroup;
 import com.dsg.wardstudy.domain.user.entity.User;
 import com.dsg.wardstudy.domain.user.entity.UserGroup;
@@ -162,7 +163,13 @@ class StudyGroupRepositoryTest {
         StudyGroup savedStudyGroup = studyGroupRepository.save(this.studyGroup);
 
         log.info("savedStudyGroup: {}", savedStudyGroup);
-        savedStudyGroup.update("new_title", "new_content");
+
+        StudyGroupRequest studyGroupRequest = StudyGroupRequest.builder()
+                .title("new_title")
+                .content("new_content")
+                .build();
+
+        savedStudyGroup.update(studyGroupRequest);
 
         // then - verify the output
         assertThat(savedStudyGroup).isNotNull();
